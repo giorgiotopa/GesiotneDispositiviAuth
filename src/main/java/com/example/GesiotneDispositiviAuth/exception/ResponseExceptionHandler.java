@@ -26,5 +26,9 @@ public class ResponseExceptionHandler {
         return new ErrorResponse(e.getMessage());
     }
 
-
+    @ExceptionHandler(UnAuthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse unAuthorizedExceptionHandler(UnAuthorizedException e){
+        return new ErrorResponse(e.getMessage());
+    }
 }
