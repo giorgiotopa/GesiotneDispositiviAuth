@@ -25,7 +25,7 @@ public class DipendenteController {
     private Cloudinary cloudinary;
 
     @GetMapping("/dipendenti")
-    @PreAuthorize("hasAuthority('ADMIN')")
+//    @PreAuthorize("hasAuthority('ADMIN')")
     public Page<Dipendente> getAll(Pageable pageable){
         return dipendeteService.getAllDipendenti(pageable);
     }

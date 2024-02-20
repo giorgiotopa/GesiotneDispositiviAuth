@@ -17,6 +17,7 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
@@ -41,7 +42,9 @@ public class JwtFilter extends OncePerRequestFilter {
 
         Utente utente = utenteService.getUtenteByUsername(username);
 
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(utente, null);
+        checkPathVariable(request, utente);
+
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(utente, null, utente.getAuthorities());
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -52,5 +55,24 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         return new AntPathMatcher().match("/auth/**", request.getServletPath());
+    }
+    private void checkPathVariable(HttpServletRequest request, Utente utente){
+        String[] parts = request.getServletPath().split("/");
+        System.out.println(parts.length);
+        Arrays.stream(parts).forEach(System.out::println);
+        if(parts.length==3) {
+            if (parts[1].equals("dipendenti")) {
+                int id = Integer.parseInt(parts[2]);
+
+                if(utente.getId()!=id){
+                    throw new UnAuthorizedException("Non sei abilitato ad utilizzare il servizio per id differenti dal tuo");
+                }
+
+            } else if (parts[1].equals("utenti")) {
+                if(!utente.getUsername().equals(parts[2])){
+                    throw new UnAuthorizedException("Non sei abilitato ad utilizzare il servizio per un username differente dal tuo");
+                }
+            }
+        }
     }
 }
